@@ -1,0 +1,49 @@
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+
+  <servlet>
+    <servlet-name>AddAccountServlet</servlet-name>
+    <servlet-class>com.bank.AddAccountServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AddAccountServlet</servlet-name>
+    <url-pattern>/addAccount</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>CreditAmountServlet</servlet-name>
+    <servlet-class>com.bank.CreditAmountServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CreditAmountServlet</servlet-name>
+    <url-pattern>/creditAmount</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>DebitAmountServlet</servlet-name>
+    <servlet-class>com.bank.DebitAmountServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DebitAmountServlet</servlet-name>
+    <url-pattern>/debitAmount</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>ShowAllAccountsServlet</servlet-name>
+    <servlet-class>com.bank.ShowAllAccountsServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ShowAllAccountsServlet</servlet-name>
+    <url-pattern>/showAllAccounts</url-pattern>
+  </servlet-mapping>
+
+  <welcome-file-list>
+    <welcome-file>addAccount.jsp</welcome-file>
+  </welcome-file-list>
+</web-app>
