@@ -1,5 +1,11 @@
 package com.bank;
 
+import com.bank.Account;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -8,15 +14,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet("/showAllAccount")
 public class ShowAllAccountsServlet extends HttpServlet {
+
+    private SessionFactory sessionFactory;
+
+    @Override
+    public void init() throws ServletException {
+        // Initialize Hibernate SessionFactory
+        sessionFactory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -25,51 +34,43 @@ public class ShowAllAccountsServlet extends HttpServlet {
         response.setHeader("Pragma", "no-cache");
         response.setDateHeader("Expires", 0);
 
-        List<Account> accounts = new ArrayList<>();
+        List<Account> accounts = null;
+        Transaction transaction = null;
 
-        try {
-            // Load the database driver class
-            Class.forName("com.mysql.cj.jdbc.Driver");  // Replace with your database driver
+        try (Session session = sessionFactory.openSession()) {
+            // Begin transaction
+            transaction = session.beginTransaction();
 
-            try (Connection conn = DBConnection.getConnection()) {
-                if (conn != null) {
-                    System.out.println("Database connection established.");
-                } else {
-                    System.out.println("Failed to establish database connection.");
-                }
+            // Fetch all accounts from the database using Hibernate
+            accounts = session.createQuery("FROM Account", Account.class).list();
 
-                try (PreparedStatement stmt = conn.prepareStatement("SELECT * FROM accounts");
-                     ResultSet rs = stmt.executeQuery()) {
+            // Commit the transaction
+            transaction.commit();
 
-                    while (rs.next()) {
-                        Account account = new Account();
-                        account.setId(rs.getInt("id"));
-                        account.setAccountName(rs.getString("accountName"));
-                        account.setAccountNumber(rs.getString("accountNumber"));
-                        account.setBalance(rs.getDouble("balance"));
-                        account.setPin(rs.getString("pin"));
-                        accounts.add(account);
-                    }
-
-                    if (accounts.isEmpty()) {
-                        System.out.println("No accounts found.");
-                    } else {
-                        System.out.println("Accounts loaded: " + accounts.size());
-                    }
-                }
+            if (accounts == null || accounts.isEmpty()) {
+                System.out.println("No accounts found.");
+            } else {
+                System.out.println("Accounts loaded: " + accounts.size());
             }
-        } catch (ClassNotFoundException e) {
-            // This exception is thrown if the driver class is not found
-            System.out.println("Database driver class not found.");
-            e.printStackTrace();
-        } catch (SQLException e) {
-            // Handle SQL exceptions
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
             e.printStackTrace();
         }
 
-
+        // Set the list of accounts as a request attribute
         request.setAttribute("accounts", accounts);
+
+        // Forward the request to the JSP page
         RequestDispatcher dispatcher = request.getRequestDispatcher("showAllAccounts.jsp");
         dispatcher.forward(request, response);
+    }
+
+    @Override
+    public void destroy() {
+        if (sessionFactory != null) {
+            sessionFactory.close();
+        }
     }
 }

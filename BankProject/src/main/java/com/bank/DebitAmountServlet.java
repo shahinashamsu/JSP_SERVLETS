@@ -1,6 +1,11 @@
 package com.bank;
 
-import com.bank.DBConnection;
+import com.bank.Account;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -8,41 +13,65 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 @WebServlet("/debitAmounts")
 public class DebitAmountServlet extends HttpServlet {
+
+    private SessionFactory sessionFactory;
+
+    @Override
+    public void init() throws ServletException {
+        sessionFactory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
+    }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String accountNumber = request.getParameter("accountNumber");
         String pin = request.getParameter("pin");
         double amountToDebit = Double.parseDouble(request.getParameter("amountToDebit"));
 
-        try (Connection conn = DBConnection.getConnection()) {
-            String selectQuery = "SELECT balance, pin FROM accounts WHERE accountNumber = ?";
-            PreparedStatement selectStmt = conn.prepareStatement(selectQuery);
-            selectStmt.setString(1, accountNumber);
-            ResultSet rs = selectStmt.executeQuery();
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            // Begin the transaction
+            transaction = session.beginTransaction();
 
-            if (rs.next()) {
-                double balance = rs.getDouble("balance");
-                String accountPin = rs.getString("pin");
+            // Fetch the account from the database using the account number
+            Account account = session.createQuery("FROM Account WHERE accountNumber = :accountNumber", Account.class)
+                    .setParameter("accountNumber", accountNumber)
+                    .uniqueResult();
 
-                if (accountPin.equals(pin) && balance >= amountToDebit) {
-                    String updateQuery = "UPDATE accounts SET balance = balance - ? WHERE accountNumber = ?";
-                    PreparedStatement updateStmt = conn.prepareStatement(updateQuery);
-                    updateStmt.setDouble(1, amountToDebit);
-                    updateStmt.setString(2, accountNumber);
-                    updateStmt.executeUpdate();
+            // Check if the account exists
+            if (account != null) {
+                // Validate the pin and check if the balance is sufficient
+                if (account.getPin().equals(pin) && account.getBalance() >= amountToDebit) {
+                    // Update the balance
+                    account.setBalance(account.getBalance() - amountToDebit);
+                    session.update(account);
+
+                    // Commit the transaction to save the changes
+                    transaction.commit();
+                } else {
+                    // Handle the case where pin doesn't match or insufficient funds
+                    throw new ServletException("Invalid pin or insufficient balance.");
                 }
+            } else {
+                throw new ServletException("Account not found.");
             }
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback(); // Rollback if any issue occurs
+            }
             e.printStackTrace();
+            throw new ServletException("Error during transaction.", e);
         }
 
+        // Redirect after successful debit
         response.sendRedirect("showAllAccounts");
+    }
+
+    @Override
+    public void destroy() {
+        if (sessionFactory != null) {
+            sessionFactory.close();
+        }
     }
 }

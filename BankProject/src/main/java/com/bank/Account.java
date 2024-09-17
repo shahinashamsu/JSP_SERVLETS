@@ -1,17 +1,25 @@
 package com.bank;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "accounts")
 public class Account {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private String accountName;
     private String accountNumber;
     private double balance;
     private String pin;
 
-    // Constructor
-    public Account() {
-    }
-
-    // Getters and Setters for all fields
+    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -50,11 +58,5 @@ public class Account {
 
     public void setPin(String pin) {
         this.pin = pin;
-    }
-
-    // Optional: You can add a toString() method for easier debugging
-    @Override
-    public String toString() {
-        return "Account [id=" + id + ", accountName=" + accountName + ", accountNumber=" + accountNumber + ", balance=" + balance + ", pin=" + pin + "]";
     }
 }
