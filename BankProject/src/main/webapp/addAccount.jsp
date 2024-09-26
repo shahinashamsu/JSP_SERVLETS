@@ -102,9 +102,6 @@
             <div class="form-group">
                 <input type="submit" value="Add Account" />
             </div>
-            <div class="form-group">
-                <a href="showAllAccounts.jsp">Show All Accounts</a>
-            </div>
         </form>
     </div>
 </body>

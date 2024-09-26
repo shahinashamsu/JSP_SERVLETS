@@ -44,7 +44,7 @@
         <a href="addAccount.jsp"><button class="button">Add Account</button></a>
         <a href="creditAmount.jsp"><button class="button">Credit Amount</button></a>
         <a href="debitAmount.jsp"><button class="button">Debit Amount</button></a>
-        <a href="showAllAccounts.jsp"><button class="button">Show All Accounts</button></a>
+        <a href="showAllAccount"><button class="button">Show All Accounts</button></a>
     </div>
 </body>
 </html>

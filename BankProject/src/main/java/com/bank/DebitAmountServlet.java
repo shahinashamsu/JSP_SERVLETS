@@ -65,7 +65,7 @@ public class DebitAmountServlet extends HttpServlet {
         }
 
         // Redirect after successful debit
-        response.sendRedirect("showAllAccounts");
+        response.sendRedirect("showAllAccount");
     }
 
     @Override

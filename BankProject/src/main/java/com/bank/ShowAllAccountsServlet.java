@@ -61,7 +61,6 @@ public class ShowAllAccountsServlet extends HttpServlet {
 
         // Set the list of accounts as a request attribute
         request.setAttribute("accounts", accounts);
-
         // Forward the request to the JSP page
         RequestDispatcher dispatcher = request.getRequestDispatcher("showAllAccounts.jsp");
         dispatcher.forward(request, response);

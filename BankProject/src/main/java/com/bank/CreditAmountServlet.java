@@ -65,7 +65,7 @@ public class CreditAmountServlet extends HttpServlet {
         }
 
         // Redirect to show all accounts after processing
-        response.sendRedirect("showAllAccounts");
+        response.sendRedirect("showAllAccount");
     }
 
     @Override

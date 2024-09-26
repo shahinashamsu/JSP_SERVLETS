@@ -92,9 +92,7 @@
             <div class="form-group">
                 <input type="submit" value="Credit Amount" />
             </div>
-            <div class="form-group">
-                <a href="showAllAccounts.jsp">Show All Accounts</a>
-            </div>
+
         </form>
     </div>
 </body>

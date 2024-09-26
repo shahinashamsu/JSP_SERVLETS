@@ -52,9 +52,10 @@ public class AddAccountServlet extends HttpServlet {
             }
             e.printStackTrace();
         }
+        System.out.println("show...");
 
         // Redirect to another servlet or page
-        response.sendRedirect("showAllAccounts");
+        response.sendRedirect(request.getContextPath() + "/showAllAccount");
     }
 
     @Override
